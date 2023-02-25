@@ -88,19 +88,3 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         event.reply("Dogs!").queue();
     }
 
-    @SlashCommand(path = "linked", deferReply = true, deferEphemeral = true)
-    public void linkedCommand(SlashCommandEvent event) {
-        UUID uuid = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getUser().getId());
-        if (uuid != null) {
-            event.getHook().sendMessage("✅ Your account is linked to " + Bukkit.getOfflinePlayer(uuid).getName() + ".").queue();
-        } else {
-            event.getHook().sendMessage("❌ Your account is not linked.").queue();
-        }
-    }
-
-    @SlashCommand(path = "life", deferReply = true)
-    public void meaningOfLife(SlashCommandEvent event) {
-        event.getHook().sendMessage("42").queueAfter(5, TimeUnit.SECONDS);
-    }
-
-}

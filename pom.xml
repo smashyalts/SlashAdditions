@@ -60,7 +60,15 @@
             <id>Scarsz-Nexus</id>
             <url>https://nexus.scarsz.me/content/groups/public/</url>
         </repository>
-
+        <repository>
+            <id>scarsz</id>
+            <url>https://nexus.scarsz.me/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
         <!-- bukkit -->
         <repository>
             <id>spigot-repo</id>
@@ -73,7 +81,7 @@
         <dependency>
             <groupId>com.discordsrv</groupId>
             <artifactId>discordsrv</artifactId>
-            <version>1.26.0-SNAPSHOT</version>
+            <version>1.26.0</version>
             <scope>provided</scope>
         </dependency>
 
