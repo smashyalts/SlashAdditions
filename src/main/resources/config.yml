@@ -1,0 +1,8 @@
+main-channel: "12345678"
+  # replace 12345678 with the id of the channel, you want commands to work in.
+stats-enabled: true
+balance-enabled: true
+serverinfo-enabled: true
+playerlist-enabled: true
+ip: "0.0.0.0"
+# replace 0.0.0.0 with the ip/domain u want to show.

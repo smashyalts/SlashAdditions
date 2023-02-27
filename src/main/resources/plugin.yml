@@ -1,4 +1,7 @@
 main: com.discordsrv.apitest.Plugin
 version: 1.0
-name: DiscordSRV-ApiTest
-depend: [DiscordSRV]
+apiVersion: 1.13
+name: SlashAdditions
+depend: [ DiscordSRV ]
+softdepend: [ Vault ]
+author: CraftSupport
