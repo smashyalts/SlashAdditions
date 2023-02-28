@@ -41,11 +41,14 @@ import java.util.stream.Collectors;
 public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider, AutoCloseable {
 
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
+    private Economy econ = null;
 
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
         DiscordSRV.api.subscribe(discordsrvListener);
+        registerEcon();
+        saveDefaultConfig();
     }
     @Override
     public void onDisable() {
