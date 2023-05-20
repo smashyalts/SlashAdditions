@@ -5,36 +5,21 @@ import github.scarsz.discordsrv.api.commands.PluginSlashCommand;
 import github.scarsz.discordsrv.api.commands.SlashCommand;
 import github.scarsz.discordsrv.api.commands.SlashCommandProvider;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.dependencies.jda.api.events.interaction.SlashCommandEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.interactions.commands.OptionType;
 import github.scarsz.discordsrv.dependencies.jda.api.interactions.commands.build.CommandData;
-import github.scarsz.discordsrv.util.DiscordUtil;
 import net.milkbowl.vault.economy.Economy;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -69,6 +54,8 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         return econ != null;
     }
 
+
+
     @Override
     public Set<PluginSlashCommand> getSlashCommands() {
         return new HashSet<>(Arrays.asList(
@@ -76,18 +63,18 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
                         .addOption(OptionType.STRING, "player-name", "Name of player u want to see stats of", true)
                 ),
 
-                new PluginSlashCommand(this, new CommandData("balance", "Check how broke someone is")
+                new PluginSlashCommand(this, new CommandData("balance", "Check someones balance")
                         .addOption(OptionType.STRING, "player-name", "Name of player u want to see balance of", true)),
-
                 new PluginSlashCommand(this, new CommandData("player-list", "See a list of currently online players")),
                 new PluginSlashCommand(this, new CommandData("server-info", "See basic information about the server"))
                 ));
     }
 
+
     @SlashCommand(path = "balance")
     public void balanceCommand(SlashCommandEvent event) {
         if (!Objects.equals(this.getConfig().get("balance-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
-        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString())) {
+        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
             event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
         if (econ == null) {event.reply("VAULT ECONOMY UNABLE TO LOAD").queue(); return;}
         String playerName = String.valueOf(event.getOption("player-name"));
@@ -96,14 +83,14 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
     }
     @SlashCommand(path = "server-info")
     public void serverinfo(SlashCommandEvent event) throws IOException {
-        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString())) {
+        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
             event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
         if (!Objects.equals(this.getConfig().get("serverinfo-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
        if (this.getConfig().get("ip").toString().equalsIgnoreCase("0.0.0.0")) {
  //you get the IP as a String
            EmbedBuilder eb = new EmbedBuilder();
            HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
-           eb.addField("Info", "IP: " + "Change this in Config.yml" + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + Bukkit.getServer().getVersion(), false);
+           eb.addField("Info", "IP: " + "Change this in Config.yml" + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + "1.19.3", false);
            eb.setColor(Color.RED);
            eb.setTitle("Server Info", null);
            event.replyEmbeds(eb.build()).setEphemeral(true).queue();
@@ -111,14 +98,14 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
        else {
         EmbedBuilder eb = new EmbedBuilder();
         HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
-        eb.addField("Info", "IP: " + this.getConfig().get("ip") + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + Bukkit.getServer().getVersion(), false);
+        eb.addField("Info", "IP: " + this.getConfig().get("ip") + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + "1.19.3", false);
         eb.setColor(Color.RED);
         eb.setTitle("Server Info", null);
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
 }}
     @SlashCommand(path = "player-list")
     public void playerlist(SlashCommandEvent event) {
-        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString())) {
+        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
             event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
         if (!Objects.equals(this.getConfig().get("playerlist-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
         EmbedBuilder eb = new EmbedBuilder();
@@ -134,7 +121,7 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
     EmbedBuilder eb = new EmbedBuilder();
     OfflinePlayer displayName = Bukkit.getOfflinePlayer(event.getOption("player-name").getAsString());
     long playtime = 0;
-    if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString())) {
+    if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
         event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
     if (!Objects.equals(this.getConfig().get("stats-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
     int deaths = displayName.getStatistic(Statistic.DEATHS);
