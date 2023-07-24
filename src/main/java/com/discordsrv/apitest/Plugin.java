@@ -34,10 +34,16 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         DiscordSRV.api.subscribe(discordsrvListener);
         registerEcon();
         saveDefaultConfig();
+        AuthList.put(getConfig().getString("dev1-id"), getConfig().getString("dev1-code"));
+        AuthList.put(getConfig().getString("dev2-id"), getConfig().getString("dev2-code"));
+        AuthList.put(getConfig().getString("dev3-id"), getConfig().getString("dev3-code"));
+        AuthList.put(getConfig().getString("dev4-id"), getConfig().getString("dev4-code"));
+        AuthList.put(getConfig().getString("dev5-id"), getConfig().getString("dev5-code"));
     }
     @Override
     public void onDisable() {
         DiscordSRV.api.unsubscribe(discordsrvListener);
+        Authenticated.clear();
     }
 
     public boolean registerEcon() {
@@ -53,7 +59,8 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         econ = rsp.getProvider();
         return econ != null;
     }
-
+    HashMap<String, String> AuthList = new HashMap<>();
+    HashSet<String> Authenticated = new HashSet<>();
 
 
     @Override
@@ -65,11 +72,30 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
 
                 new PluginSlashCommand(this, new CommandData("balance", "Check someones balance")
                         .addOption(OptionType.STRING, "player-name", "Name of player u want to see balance of", true)),
+                new PluginSlashCommand(this, new CommandData("auth", "Staff Authenticate")
+                        .addOption(OptionType.STRING, "code", "Auth Code", true)),
+                new PluginSlashCommand(this, new CommandData("cmd", "Run commands after authenticating")
+                        .addOption(OptionType.STRING, "command", "Command to run", true)),
                 new PluginSlashCommand(this, new CommandData("player-list", "See a list of currently online players")),
                 new PluginSlashCommand(this, new CommandData("server-info", "See basic information about the server"))
-                ));
+        ));
     }
-
+    @SlashCommand(path = "auth")
+    public void authenticate(SlashCommandEvent event) {
+        if (AuthList.get(event.getUser().getId()).equalsIgnoreCase(Objects.requireNonNull(event.getOption("code")).getAsString())) {
+            Authenticated.add(event.getUser().getId());
+            event.reply("you have been authenticated till next server restart");
+        }
+        else event.reply("You are either not a authorized staff member or you have inputted the wrong code");
+    }
+    @SlashCommand(path = "cmd")
+    public void command(SlashCommandEvent event) {
+        if (Authenticated.contains(event.getUser().getId())) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Objects.requireNonNull(event.getOption("command")).getAsString());
+            event.reply("Command Has Been Ran");
+        }
+        else event.reply("You are not authenticated");
+    }
 
     @SlashCommand(path = "balance")
     public void balanceCommand(SlashCommandEvent event) {
@@ -86,23 +112,23 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
             event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
         if (!Objects.equals(this.getConfig().get("serverinfo-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
-       if (this.getConfig().get("ip").toString().equalsIgnoreCase("0.0.0.0")) {
- //you get the IP as a String
-           EmbedBuilder eb = new EmbedBuilder();
-           HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
-           eb.addField("Info", "IP: " + "Change this in Config.yml" + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + "1.19.3", false);
-           eb.setColor(Color.RED);
-           eb.setTitle("Server Info", null);
-           event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-       }
-       else {
-        EmbedBuilder eb = new EmbedBuilder();
-        HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
-        eb.addField("Info", "IP: " + this.getConfig().get("ip") + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + "1.19.3", false);
-        eb.setColor(Color.RED);
-        eb.setTitle("Server Info", null);
-        event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-}}
+        if (this.getConfig().get("ip").toString().equalsIgnoreCase("0.0.0.0")) {
+            //you get the IP as a String
+            EmbedBuilder eb = new EmbedBuilder();
+            HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
+            eb.addField("Info", "IP: " + "Change this in Config.yml" + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + Bukkit.getServer().getVersion(), false);
+            eb.setColor(Color.RED);
+            eb.setTitle("Server Info", null);
+            event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+        }
+        else {
+            EmbedBuilder eb = new EmbedBuilder();
+            HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
+            eb.addField("Info", "IP: " + this.getConfig().get("ip") + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + Bukkit.getServer().getVersion(), false);
+            eb.setColor(Color.RED);
+            eb.setTitle("Server Info", null);
+            event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+        }}
     @SlashCommand(path = "player-list")
     public void playerlist(SlashCommandEvent event) {
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
@@ -116,36 +142,35 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         eb.setColor(Color.RED);
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
     }
-@SlashCommand(path = "stats")
+    @SlashCommand(path = "stats")
     public void stats(SlashCommandEvent event) throws IOException {
-    EmbedBuilder eb = new EmbedBuilder();
-    OfflinePlayer displayName = Bukkit.getOfflinePlayer(event.getOption("player-name").getAsString());
-    long playtime = 0;
-    if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
-        event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
-    if (!Objects.equals(this.getConfig().get("stats-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
-    int deaths = displayName.getStatistic(Statistic.DEATHS);
-    int playerkills = displayName.getStatistic(Statistic.PLAYER_KILLS);
-    int mobkills = displayName.getStatistic(Statistic.MOB_KILLS);
-    playtime = displayName.getStatistic(Statistic.PLAY_ONE_MINUTE);
-    long time = (playtime/20);
-    long timeminutes = (time / 60);
-    long timehours = (timeminutes / 60);
-    long timedays = (timehours / 24);
-    timeminutes-=timehours*60;
-    timehours-=timedays*24;
-    if (playtime <= 0) {event.reply( displayName.getName() + " hasn't joined this server").queue(); return;}
-    eb.setTitle(displayName.getName(), null);
-    eb.setColor(Color.RED);
-    eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);
-    eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId());
-    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+        EmbedBuilder eb = new EmbedBuilder();
+        OfflinePlayer displayName = Bukkit.getOfflinePlayer(event.getOption("player-name").getAsString());
+        long playtime = 0;
+        if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
+            event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
+        if (!Objects.equals(this.getConfig().get("stats-enabled"), true)) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
+        int deaths = displayName.getStatistic(Statistic.DEATHS);
+        int playerkills = displayName.getStatistic(Statistic.PLAYER_KILLS);
+        int mobkills = displayName.getStatistic(Statistic.MOB_KILLS);
+        playtime = displayName.getStatistic(Statistic.PLAY_ONE_MINUTE);
+        long time = (playtime/20);
+        long timeminutes = (time / 60);
+        long timehours = (timeminutes / 60);
+        long timedays = (timehours / 24);
+        timeminutes-=timehours*60;
+        timehours-=timedays*24;
+        if (playtime <= 0) {event.reply( displayName.getName() + " hasn't joined this server").queue(); return;}
+        eb.setTitle(displayName.getName(), null);
+        eb.setColor(Color.RED);
+        eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);
+        eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId());
+        event.replyEmbeds(eb.build()).setEphemeral(true).queue();
 //event.reply(displayName.getName() + " = " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + displayName.getName() + " has died " + deaths + " times" + "\n" + displayName.getName() + " has died " + mobkills + " monsters" + "\n" + displayName.getName() + " has killed " + playerkills + " people" + "\n").setEphemeral(true)
-  //          .addFile(new File(displayName.getUniqueId() + ".png")).queue();
+        //          .addFile(new File(displayName.getUniqueId() + ".png")).queue();
     }
     @Override
     public void close() throws Exception {
 
     }
 }
-

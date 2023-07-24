@@ -8,3 +8,13 @@ serverinfo-enabled: true
 playerlist-enabled: true
 ip: "0.0.0.0"
 # replace 0.0.0.0 with the ip/domain u want to show.
+dev1-id: "null"
+dev2-id: "null"
+dev3-id: "null"
+dev4-id: "null"
+dev5-id: "null"
+dev1-code: "null"
+dev2-code: "null"
+dev3-code: "null"
+dev4-code: "null"
+dev5-code: "null"
