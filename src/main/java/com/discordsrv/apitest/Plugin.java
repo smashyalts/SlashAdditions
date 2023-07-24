@@ -34,11 +34,11 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         DiscordSRV.api.subscribe(discordsrvListener);
         registerEcon();
         saveDefaultConfig();
-        AuthList.put(getConfig().getString("dev1-id"), getConfig().getString("dev1-code"));
-        AuthList.put(getConfig().getString("dev2-id"), getConfig().getString("dev2-code"));
-        AuthList.put(getConfig().getString("dev3-id"), getConfig().getString("dev3-code"));
-        AuthList.put(getConfig().getString("dev4-id"), getConfig().getString("dev4-code"));
-        AuthList.put(getConfig().getString("dev5-id"), getConfig().getString("dev5-code"));
+        if (getConfig().getString("dev1-id") != null){ AuthList.put(getConfig().getString("dev1-id"), getConfig().getString("dev1-code"));}
+        if (getConfig().getString("dev2-id") != null){ AuthList.put(getConfig().getString("dev2-id"), getConfig().getString("dev2-code"));}
+        if (getConfig().getString("dev3-id") != null){ AuthList.put(getConfig().getString("dev3-id"), getConfig().getString("dev3-code"));}
+        if (getConfig().getString("dev4-id") != null){ AuthList.put(getConfig().getString("dev4-id"), getConfig().getString("dev4-code"));}
+        if (getConfig().getString("dev5-id") != null){ AuthList.put(getConfig().getString("dev5-id"), getConfig().getString("dev5-code"));}
     }
     @Override
     public void onDisable() {
