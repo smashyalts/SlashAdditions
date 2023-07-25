@@ -1,4 +1,1 @@
-# DiscordSRV-ApiTest
-Example usage of DiscordSRV's API
-
-## [See DiscordSRV's wiki for dependency information](https://docs.discordsrv.com/#developers)
+SlashAdditions, a fully customizable Discordsrv extension that adds a lot of fun and useful commands
