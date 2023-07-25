@@ -3,20 +3,14 @@ main-channel: "12345678"
 only-mainchannel: true
 # change this to false if u want the commands to be able to be used in any text channel
 stats-enabled: true
-line-1: ""
-line-2: ""
+placeholderapi-support: false
+#Requires PlaceholderAPI plugin to work
+line1: ""
+line2: ""
 balance-enabled: true
 serverinfo-enabled: true
 playerlist-enabled: true
 ip: "0.0.0.0"
 # replace 0.0.0.0 with the ip/domain u want to show.
 dev1-id: "null"
-dev2-id: "null"
-dev3-id: "null"
-dev4-id: "null"
-dev5-id: "null"
 dev1-code: "null"
-dev2-code: "null"
-dev3-code: "null"
-dev4-code: "null"
-dev5-code: "null"
