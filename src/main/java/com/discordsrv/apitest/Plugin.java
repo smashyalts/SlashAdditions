@@ -8,6 +8,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.events.interaction.SlashCommandEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.interactions.commands.OptionType;
 import github.scarsz.discordsrv.dependencies.jda.api.interactions.commands.build.CommandData;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider, AutoCloseable {
 
     private final DiscordSRVListener discordsrvListener = new DiscordSRVListener(this);
@@ -34,11 +34,14 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         DiscordSRV.api.subscribe(discordsrvListener);
         registerEcon();
         saveDefaultConfig();
-        if (getConfig().getString("dev1-id") != null && getConfig().getString("dev1-code") != null){ AuthList.put(getConfig().getString("dev1-id"), getConfig().getString("dev1-code"));}
-        if (getConfig().getString("dev2-id") != null && getConfig().getString("dev2-code") != null){ AuthList.put(getConfig().getString("dev2-id"), getConfig().getString("dev2-code"));}
-        if (getConfig().getString("dev3-id") != null && getConfig().getString("dev3-code") != null){ AuthList.put(getConfig().getString("dev3-id"), getConfig().getString("dev3-code"));}
-        if (getConfig().getString("dev4-id") != null && getConfig().getString("dev4-code") != null){ AuthList.put(getConfig().getString("dev4-id"), getConfig().getString("dev4-code"));}
-        if (getConfig().getString("dev5-id") != null && getConfig().getString("dev5-code") != null){ AuthList.put(getConfig().getString("dev5-id"), getConfig().getString("dev5-code"));}
+        for(int i = 1; ; i++) {
+            String config = getConfig().getString("dev" + i + "-id");
+            getLogger().info(i + " : " + config);
+            if (config == null) {
+                break;
+            }
+            AuthList.put(getConfig().getString("dev" + i + "-id"), getConfig().getString("dev" + i + "-code"));
+        }
     }
     @Override
     public void onDisable() {
@@ -81,7 +84,7 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         ));
     }
     @SlashCommand(path = "auth")
-    public void authenticate(SlashCommandEvent event) {
+    public void auth(SlashCommandEvent event) {
         if (AuthList.get(event.getUser().getId()).equalsIgnoreCase(Objects.requireNonNull(event.getOption("code")).getAsString())) {
             Authenticated.add(event.getUser().getId());
             event.reply("you have been authenticated till next server restart");
@@ -163,7 +166,20 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         if (playtime <= 0) {event.reply( displayName.getName() + " hasn't joined this server").queue(); return;}
         eb.setTitle(displayName.getName(), null);
         eb.setColor(Color.RED);
-        eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);
+        if (getConfig().getBoolean("placeholderapi-support")) {
+        eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);}
+
+        for(int i = 1; ; i++) {
+            String config = getConfig().getString("line" + i);
+            getLogger().info(i + " : " + config);
+            if (config == null) {
+                break;
+            }
+
+            String unparsedText = Objects.requireNonNull(config);
+            String parsedPlaceholders = PlaceholderAPI.setPlaceholders(displayName, unparsedText);
+            eb.addField("", parsedPlaceholders + "\n", false);
+        }
         eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId());
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
 //event.reply(displayName.getName() + " = " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + displayName.getName() + " has died " + deaths + " times" + "\n" + displayName.getName() + " has died " + mobkills + " monsters" + "\n" + displayName.getName() + " has killed " + playerkills + " people" + "\n").setEphemeral(true)

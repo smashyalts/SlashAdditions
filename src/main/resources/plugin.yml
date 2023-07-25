@@ -3,5 +3,5 @@ version: 1.0
 apiVersion: 1.13
 name: SlashAdditions
 depend: [ DiscordSRV ]
-softdepend: [ Vault ]
+softdepend: [ Vault, PlaceholderAPI ]
 author: CraftSupport

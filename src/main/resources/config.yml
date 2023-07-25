@@ -3,6 +3,8 @@ main-channel: "12345678"
 only-mainchannel: true
 # change this to false if u want the commands to be able to be used in any text channel
 stats-enabled: true
+line-1: ""
+line-2: ""
 balance-enabled: true
 serverinfo-enabled: true
 playerlist-enabled: true
