@@ -171,14 +171,13 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
 
         for(int i = 1; ; i++) {
             String config = getConfig().getString("line" + i);
-            getLogger().info(i + " : " + config);
             if (config == null) {
                 break;
             }
 
             String unparsedText = Objects.requireNonNull(config);
             String parsedPlaceholders = PlaceholderAPI.setPlaceholders(displayName, unparsedText);
-            eb.addField("", parsedPlaceholders + "\n", false);
+            eb.addField("", parsedPlaceholders, false);
         }
         eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId());
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
