@@ -1,16 +1,20 @@
-main-channel: "12345678"
-  # replace 12345678 with the id of the channel, you want commands to work in.
+main-channel: ""
+# ^^  Add the id of the channel you want commands to work in.
 only-mainchannel: true
 # change this to false if u want the commands to be able to be used in any text channel
 stats-enabled: true
 placeholderapi-support: false
 #Requires PlaceholderAPI plugin to work
+display-avatar: true
 line1: ""
 line2: ""
-balance-enabled: true
 serverinfo-enabled: true
+line-1: ""
+line-2: ""
+#Use these and add more using line-(line number)
+#only works when placeholderapi support is enabled
 playerlist-enabled: true
-ip: "0.0.0.0"
-# replace 0.0.0.0 with the ip/domain u want to show.
-dev1-id: "null"
-dev1-code: "null"
+ip: "Change Me In Config"
+# replace Change Me In Config with the ip/domain u want to show.
+dev1-id: ""
+dev1-code: ""
