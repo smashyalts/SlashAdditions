@@ -1,20 +1,21 @@
 main-channel: ""
-# ^^  Add the id of the channel you want commands to work in.
+# ^^  Add the id of the channel you want commands to work in. (requires only-amainchannel to be set to true)
 only-mainchannel: true
 # change this to false if u want the commands to be able to be used in any text channel
+playerlist-enabled: true
 stats-enabled: true
+serverinfo-enabled: true
 placeholderapi-support: false
 #Requires PlaceholderAPI plugin to work
 display-avatar: true
-line1: ""
-line2: ""
-serverinfo-enabled: true
-line-1: ""
-line-2: ""
-#Use these and add more using line-(line number)
+stats:
+  - "Example1"
+  - "Example2"
+server-info:
+  - "Example1"
+  - "Example2"
 #only works when placeholderapi support is enabled
-playerlist-enabled: true
 ip: "Change Me In Config"
-# replace Change Me In Config with the ip/domain u want to show.
+# replace Change Me In Config with the ip/domain u want to show. (only needed if not using placeholderapi-support)
 dev1-id: ""
 dev1-code: ""

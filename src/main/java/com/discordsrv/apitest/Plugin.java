@@ -24,6 +24,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider {
@@ -92,6 +93,8 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
     }
     @SlashCommand(path = "server-info")
     public void serverinfo(SlashCommandEvent event) throws IOException {
+        List<String> serverInfo = getConfig().getStringList("server-info");
+
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
             event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
         if (!this.getConfig().getBoolean("serverinfo-enabled")) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
@@ -105,17 +108,11 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
             event.replyEmbeds(eb.build()).setEphemeral(true).queue();
         }
             else if (getConfig().getBoolean("placeholderapi-support")) {
-            EmbedBuilder eb = new EmbedBuilder();
-            for(int i = 1; ; i++) {
-                String config = getConfig().getString("line-" + i);
-                if (config == null) {
-                    break;
-                }
+                EmbedBuilder eb = new EmbedBuilder();
+                for (String unparsedText : serverInfo) {
+                    String parsedPlaceholders = PlaceholderAPI.setPlaceholders(null, unparsedText);
+                    eb.addField("", parsedPlaceholders, false); }
 
-                String unparsedText = Objects.requireNonNull(config);
-                String parsedPlaceholders = PlaceholderAPI.setPlaceholders(null, unparsedText);
-                eb.addField("", parsedPlaceholders, false);
-        }
             eb.setColor(Color.RED);
             eb.setTitle("Server Info", null);
                 eb.setFooter("SlashAdditions");
@@ -166,18 +163,13 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         if (playtime <= 0) {event.reply( displayName.getName() + " hasn't joined this server before").setEphemeral(true).queue(); return;}
         eb.setTitle(displayName.getName(), null);
         eb.setColor(Color.RED);
-        if (!getConfig().getBoolean("placeholderapi-support")) {
+            if (!getConfig().getBoolean("placeholderapi-support")) {
         eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);}
         if (getConfig().getBoolean("placeholderapi-support")) {
-        for(int i = 1; ; i++) {
-            String config = getConfig().getString("line" + i);
-            if (config == null) {
-                break;
-            }
-            String unparsedText = Objects.requireNonNull(config);
-            String parsedPlaceholders = PlaceholderAPI.setPlaceholders(displayName, unparsedText);
-            eb.addField("", parsedPlaceholders, false);
-        }
+            List<String> playerStats = getConfig().getStringList("stats");
+            for (String unparsedText : playerStats) {
+                String parsedPlaceholders = PlaceholderAPI.setPlaceholders(displayName, unparsedText);
+                eb.addField("", parsedPlaceholders, false); }
         if (getConfig().getBoolean("display-avatar")) { eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId()); }
         eb.setFooter("SlashAdditions");
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
