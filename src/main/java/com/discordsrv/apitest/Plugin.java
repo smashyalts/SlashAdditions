@@ -37,7 +37,7 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         getServer().getPluginManager().registerEvents(this, this);
         DiscordSRV.api.subscribe(discordsrvListener);
         saveDefaultConfig();
-        for(int i = 1; ; i++) {
+        for (int i = 1; ; i++) {
             String config = getConfig().getString("dev" + i + "-id");
             if (config == null) {
                 break;
@@ -45,11 +45,13 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
             AuthList.put(getConfig().getString("dev" + i + "-id"), getConfig().getString("dev" + i + "-code"));
         }
     }
+
     @Override
     public void onDisable() {
         DiscordSRV.api.unsubscribe(discordsrvListener);
         Authenticated.clear();
     }
+
     HashMap<String, String> AuthList = new HashMap<>();
     HashSet<String> Authenticated = new HashSet<>();
 
@@ -67,38 +69,46 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
                 new PluginSlashCommand(this, new CommandData("reload", "reloads the plugin"))
         ));
     }
+
     @SlashCommand(path = "auth")
     public void authCommand(SlashCommandEvent event) {
         if (AuthList.get(event.getUser().getId()).equals(event.getOption("code").getAsString())) {
             Authenticated.add(event.getUser().getId());
             event.reply("you have been authenticated till next server restart").setEphemeral(true).queue();
-        }
-        else event.reply("You are either not a authorized staff member or you have used the wrong code").setEphemeral(true).queue();
+        } else
+            event.reply("You are either not a authorized staff member or you have used the wrong code").setEphemeral(true).queue();
     }
+
     @SlashCommand(path = "cmd")
     public void commandRunner(SlashCommandEvent event) {
-     if (Authenticated.contains(event.getUser().getId())) {
-         new BukkitRunnable() {
-             @Override
-             public void run() {
-                 commandDispatch(event.getOption("command").getAsString());
-                 event.reply("Command Has Been Executed").setEphemeral(true).queue();
-             }
-         }.runTask(this);
-     }
-     else event.reply("you are not authenticated").setEphemeral(true).queue();
+        if (Authenticated.contains(event.getUser().getId())) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    commandDispatch(event.getOption("command").getAsString());
+                    event.reply("Command Has Been Executed").setEphemeral(true).queue();
+                }
+            }.runTask(this);
+        } else event.reply("you are not authenticated").setEphemeral(true).queue();
     }
+
     public void commandDispatch(String cmd) {
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
+
     @SlashCommand(path = "server-info")
     public void serverinfo(SlashCommandEvent event) throws IOException {
         List<String> serverInfo = getConfig().getStringList("server-info");
 
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
-            event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
-        if (!this.getConfig().getBoolean("serverinfo-enabled")) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
-            if (!getConfig().getBoolean("placeholderapi-support")){
+            event.reply("This command cannot be used in this channel").setEphemeral(true).queue();
+            return;
+        }
+        if (!this.getConfig().getBoolean("serverinfo-enabled")) {
+            event.reply("This command has been disabled").setEphemeral(true).queue();
+            return;
+        }
+        if (!getConfig().getBoolean("placeholderapi-support")) {
             EmbedBuilder eb = new EmbedBuilder();
             HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
             eb.addField("Info", "IP: " + this.getConfig().get("ip") + "\n" + "Player Count: " + set.size() + "/" + Bukkit.getMaxPlayers() + "\n" + "Version: " + Bukkit.getServer().getVersion(), false);
@@ -106,32 +116,38 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
             eb.setTitle("Server Info", null);
 
             event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-        }
-            else if (getConfig().getBoolean("placeholderapi-support")) {
-                EmbedBuilder eb = new EmbedBuilder();
-                for (String unparsedText : serverInfo) {
-                    String parsedPlaceholders = PlaceholderAPI.setPlaceholders(null, unparsedText);
-                    eb.addField("", parsedPlaceholders, false); }
+        } else if (getConfig().getBoolean("placeholderapi-support")) {
+            EmbedBuilder eb = new EmbedBuilder();
+            for (String unparsedText : serverInfo) {
+                String parsedPlaceholders = PlaceholderAPI.setPlaceholders(null, unparsedText);
+                eb.addField("", parsedPlaceholders, false);
+            }
 
             eb.setColor(Color.RED);
             eb.setTitle("Server Info", null);
-                eb.setFooter("SlashAdditions");
+            eb.setFooter("SlashAdditions");
             event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+        }
     }
-    }
+
     @SlashCommand(path = "reload")
-    public void reloadCommand(SlashCommandEvent event){
+    public void reloadCommand(SlashCommandEvent event) {
         if (Authenticated.contains(event.getUser().getId())) {
             reloadConfig();
             event.reply("Plugin has been reloaded").setEphemeral(true).queue();
-        }
-        else event.reply("you are not authenticated").setEphemeral(true).queue();
+        } else event.reply("you are not authenticated").setEphemeral(true).queue();
     }
+
     @SlashCommand(path = "player-list")
     public void playerlist(SlashCommandEvent event) {
-        if (!this.getConfig().getBoolean("playerlist-enabled")) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
+        if (!this.getConfig().getBoolean("playerlist-enabled")) {
+            event.reply("This command has been disabled").setEphemeral(true).queue();
+            return;
+        }
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
-            event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
+            event.reply("This command cannot be used in this channel").setEphemeral(true).queue();
+            return;
+        }
         EmbedBuilder eb = new EmbedBuilder();
         HashSet<Player> set = new HashSet<>(Bukkit.getOnlinePlayers());
         String playerlist = set.stream().map(Player::getName).collect(Collectors.joining(", "));
@@ -141,38 +157,52 @@ public class Plugin extends JavaPlugin implements Listener, SlashCommandProvider
         eb.setFooter("SlashAdditions");
         event.replyEmbeds(eb.build()).setEphemeral(true).queue();
     }
+
     @SlashCommand(path = "stats")
     public void stats(SlashCommandEvent event) throws IOException {
         EmbedBuilder eb = new EmbedBuilder();
         OfflinePlayer displayName = Bukkit.getOfflinePlayer(event.getOption("player-name").getAsString());
         long playtime = 0;
-        if (!this.getConfig().getBoolean("stats-enabled")) {event.reply("This command has been disabled").setEphemeral(true).queue(); return;}
+        if (!this.getConfig().getBoolean("stats-enabled")) {
+            event.reply("This command has been disabled").setEphemeral(true).queue();
+            return;
+        }
         if (!event.getMessageChannel().getId().equalsIgnoreCase(Objects.requireNonNull(this.getConfig().get("main-channel")).toString()) && !this.getConfig().get("only-mainchannel").equals(false)) {
-            event.reply("This command cannot be used in this channel").setEphemeral(true).queue(); return;}
+            event.reply("This command cannot be used in this channel").setEphemeral(true).queue();
+            return;
+        }
         int deaths = displayName.getStatistic(Statistic.DEATHS);
         int playerkills = displayName.getStatistic(Statistic.PLAYER_KILLS);
         int mobkills = displayName.getStatistic(Statistic.MOB_KILLS);
         playtime = displayName.getStatistic(Statistic.PLAY_ONE_MINUTE);
 
-        long time = (playtime/20);
+        long time = (playtime / 20);
         long timeminutes = (time / 60);
         long timehours = (timeminutes / 60);
         long timedays = (timehours / 24);
-        timeminutes-=timehours*60;
-        timehours-=timedays*24;
-        if (playtime <= 0) {event.reply( displayName.getName() + " hasn't joined this server before").setEphemeral(true).queue(); return;}
+        timeminutes -= timehours * 60;
+        timehours -= timedays * 24;
+        if (playtime <= 0) {
+            event.reply(displayName.getName() + " hasn't joined this server before").setEphemeral(true).queue();
+            return;
+        }
         eb.setTitle(displayName.getName(), null);
         eb.setColor(Color.RED);
-            if (!getConfig().getBoolean("placeholderapi-support")) {
-        eb.addField("", "- **Playtime **- " + timedays +  " Days, " + timehours + " Hours, "  + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);}
+        if (!getConfig().getBoolean("placeholderapi-support")) {
+            eb.addField("", "- **Playtime **- " + timedays + " Days, " + timehours + " Hours, " + timeminutes + " Minutes " + "\n" + "- **Deaths **- " + deaths + "\n" + "- **Mob Kills **- " + mobkills + "\n" + "- **Player Kills **- " + playerkills + "\n", false);
+        }
         if (getConfig().getBoolean("placeholderapi-support")) {
             List<String> playerStats = getConfig().getStringList("stats");
             for (String unparsedText : playerStats) {
                 String parsedPlaceholders = PlaceholderAPI.setPlaceholders(displayName, unparsedText);
-                eb.addField("", parsedPlaceholders, false); }
-        if (getConfig().getBoolean("display-avatar")) { eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId()); }
-        eb.setFooter("SlashAdditions");
-        event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-    }
+                eb.addField("", parsedPlaceholders, false);
+            }
+            if (getConfig().getBoolean("display-avatar")) {
+                eb.setImage("https://crafatar.com/avatars/" + displayName.getUniqueId());
+            }
+            eb.setFooter("SlashAdditions");
+            event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+        }
 
-}}
+    }
+}
